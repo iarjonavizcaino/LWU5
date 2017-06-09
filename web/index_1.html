@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(
+                    function () {
+                        $('#tbUsuarios').DataTable(
+                                {
+                                    "ajax": "ConsultaPersonas", //Datasource
+
+                                    "columns": [//Atributos que pondrá en cada columna
+                                        {"data": "id", "visible": false},
+                                        {"data": "name"},
+                                        {"data": "email"},
+                                        {"data": "edad"},
+                                        {"data":
+                                                    function (r1) {
+                                                        var r = r1['id'] + "-" + r1['name']; //Acceder a los elementos del renglon
+                                                        var botones = "<button id='btnBorrar' class='btn btn-xs btn-danger' \n\
+                                                                        onClick='deleteUser(" + r1['id'] + ")'>Borrar</button>";
+                                                        botones += "<button id='btnEditar' class='btn btn-xs btn-warning' \n\
+                                                                    onClick='showUser(" + r1['id']
+                                                                + ",\"" + r1['name'] + "\""
+                                                                + ",\"" + r1['email'] + "\""
+                                                                + "," + r1['edad']
+                                                                + ")'>Editar</button>";
+
+
+
+                                                        return botones;
+                                                    }
+                                        }
+                                    ]
+                                }
+                        );
+
+                        $('#frmUsuarios').validate({
+                            rules: {
+                                name: {
+                                    required: true
+                                },
+                                email: {
+                                    required: true,
+                                    email: true
+                                },
+                                edad: {
+                                    required: true
+                                }
+                            },
+                            messages: {
+                                name: {
+                                    required: "El nombre es requerido"
+                                },
+                                email: {
+                                    required: "El email es requerido",
+                                    email: "El email es inválido"
+                                },
+                                edad: {
+                                    required: "La edad es requerida"
+                                }
+                            },
+                            highlight: function (element) {
+                                $(element).closest('.form-group').addClass('has-error');
+                            },
+                            unhighlight: function (element) {
+                                $(element).closest('.form-group').removeClass('has-error');
+                            },
+                            errorElement: 'span',
+                            errorClass: 'help-block',
+                            errorPlacement: function (error, element) {
+                                if (element.parent('.input-group'.length)) {
+                                    error.insertAfter(element.parent());
+                                } else {
+                                    error.insertAfter(element)
+                                }
+                            },
+                            submitHandler: function (form) {
+                                console.log('Formulario válido');
+                                newUser();
+                                return false;
+                            }
+                        });
+                        $('#frmUsuarios2').validate({
+                            rules: {
+                                name2: {
+                                    required: true
+                                },
+                                email2: {
+                                    required: true,
+                                    email: true
+                                },
+                                edad2: {
+                                    required: true
+                                }
+                            },
+                            messages: {
+                                name2: {
+                                    required: "El nombre es requerido"
+                                },
+                                email2: {
+                                    required: "El email es requerido",
+                                    email: "El email es inválido"
+                                },
+                                edad2: {
+                                    required: "La edad es requerida"
+                                }
+                            },
+                            highlight: function (element) {
+                                $(element).closest('.form-group').addClass('has-error');
+                            },
+                            unhighlight: function (element) {
+                                $(element).closest('.form-group').removeClass('has-error');
+                            },
+                            errorElement: 'span',
+                            errorClass: 'help-block',
+                            errorPlacement: function (error, element) {
+                                if (element.parent('.input-group'.length)) {
+                                    error.insertAfter(element.parent());
+                                } else {
+                                    error.insertAfter(element)
+                                }
+                            },
+                            submitHandler: function (form) {
+                                console.log('Formulario válido');
+                                updateUser();
+                                return false;
+                            }
+                        });
+
+                        $('#btnEditar').on('click', function () {
+                            $('#frmUsuarios2').submit();
+                        });
+                    }
+
+            );
+
+            function deleteUser(id) {
+
+                //Utilizando Ajax para realizar una petición al servlet que elimina personas
+                $.ajax({
+                    url: "EliminarPersona", //Url del Servlet
+                    type: "POST", //Método HTTP por el que se hace la petición
+                    data: {//Es la información que mando al servlet
+                        id: id
+                    }
+                }).done(function (json) { //Se ejecuta cuando todo sale bien
+                    alert(json.msj);
+                    //Refrescando la tabla
+                    $('#tbUsuarios').dataTable().api().ajax.reload();
+                }).fail(function (json) { //Se ejecuta cuando algo sale mal
+                    alert(json.msj);
+                });
+            }
+
+            function newUser() {
+                $.ajax({
+                    url: 'CreaPersona',
+                    type: 'POST',
+                    data: {
+                        name: $("#name").val(),
+                        email: $("#email").val(),
+                        edad: $("#edad").val()
+                    }
+                }).done(function (json) { //Se ejecuta cuando todo sale bien
+                    alert(json.msj);
+                    //Refrescando la tabla
+                    $('#tbUsuarios').dataTable().api().ajax.reload();
+                }).fail(function (json) { //Se ejecuta cuando algo sale mal
+                    alert(json.msj);
+                });
+
+
+            }
+
+            function showUser(id, name, email, edad) {
+                $("#id").val(id);
+                $("#name2").val(name);
+                $("#email2").val(email);
+                $("#edad2").val(edad);
+                $("#modalUsuario").modal("show");
+
+            }
+
+            function updateUser() {
+                $.ajax({
+                    url: 'ActualizaPersona',
+                    type: 'POST',
+                    data: {
+                        name: $("#name2").val(),
+                        email: $("#email2").val(),
+                        edad: $("#edad2").val(),
+                        id: $("#id").val()
+                    }
+                }).done(function (json) { //Se ejecuta cuando todo sale bien
+                    alert(json.msj);
+                    //Refrescando la tabla
+                    $('#tbUsuarios').dataTable().api().ajax.reload();
+                    
+                    //Cerrando el modal
+                    $('#modalUsuario').modal("toggle");
+                }).fail(function (json) { //Se ejecuta cuando algo sale mal
+                    alert(json.msj);
+                });
+            }
+
+        </script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    </head>
+    <body>
+
+        <div id="modalUsuario" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                        <h3>Modificar Usuario</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="col-lg-12" id="frmUsuarios2" method="POST">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label" for="name2">Nombre</label>
+                                    <div class="input-group cocol-lg-12 col-md-12 col-sm-12 col-xs-12l">
+                                        <span class="input-group-addon">N</span>
+                                        <input class="form-control" id="name2" name="name2">
+                                        <input type="hidden" id="id" name="id">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label" for="email2">Email</label>
+                                    <div class="input-group cocol-lg-12 col-md-12 col-sm-12 col-xs-12l">
+                                        <span class="input-group-addon">@</span>
+                                        <input class="form-control" id="email2" name="email2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label" for="edad2">Edad</label>
+                                    <div class="input-group cocol-lg-12 col-md-12 col-sm-12 col-xs-12l">
+                                        <span class="input-group-addon">E</span>
+                                        <input class="form-control" id="edad2" name="edad2" type="number">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnEditar" class="btn btn-sm btn-primary">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h1>Usuarios</h1>
+            <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12">
+                <form class="col-lg-12" id="frmUsuarios" method="POST">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label" for="name">Nombre</label>
+                            <div class="input-group cocol-lg-12 col-md-12 col-sm-12 col-xs-12l">
+                                <span class="input-group-addon">N</span>
+                                <input class="form-control" id="name" name="name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label" for="email">Email</label>
+                            <div class="input-group cocol-lg-12 col-md-12 col-sm-12 col-xs-12l">
+                                <span class="input-group-addon">@</span>
+                                <input class="form-control" id="email" name="email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label" for="edad">Edad</label>
+                            <div class="input-group cocol-lg-12 col-md-12 col-sm-12 col-xs-12l">
+                                <span class="input-group-addon">E</span>
+                                <input class="form-control" id="edad" name="edad" type="number">
+                            </div>
+                        </div>
+                    </div>
+                    <div align="right">
+                        <button type="submit" class="btn btn-primary btn-lg">Guardar</button> 
+                    </div>
+
+                </form>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12">
+                <table id="tbUsuarios">
+                    <thead>
+                        <tr>
+                            <th>Clave</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Edad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

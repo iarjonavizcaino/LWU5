@@ -1,0 +1,39 @@
+{
+	"data": [{
+			"id": 1,
+			"name": "Israel Arjona Vizcaíno",
+			"email": "iarjona2@ittepic.edu.mx",
+			"edad": 32
+		},
+		{
+			"id": 2,
+			"name": "Israel Arjona Castañeda",
+			"email": "iarjona@ittepic.edu.mx",
+			"edad": 7
+		},
+		{
+			"id": 3,
+			"name": "Ma. Elena Parra",
+			"email": "meparra@ittepic.edu.mx",
+			"edad": 30
+		},
+		{
+			"id": 4,
+			"name": "Mar Asdrubal",
+			"email": "mar@ittepic.edu.mx",
+			"edad": 30
+		},
+		{
+			"id": 5,
+			"name": "Farida",
+			"email": "farida@ittepic.edu.mx",
+			"edad": 30
+		},
+		{
+			"id": 6,
+			"name": "Martha",
+			"email": "martha@ittepic.edu.mx",
+			"edad": 30
+		}
+	]
+}
